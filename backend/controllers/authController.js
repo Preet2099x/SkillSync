@@ -79,7 +79,12 @@ export const loginController = async (req, res) => {
         }
 
         const token = JWT.sign({ _id: user._id, userType }, process.env.JWT_SECRET, { expiresIn: "7d" });
-        
+        console.log(token); // just for testing
+
+        // Store token in the database
+        user.token = token;
+        await user.save();
+
         res.status(200).json({
             success: true,
             message: "Login successful",
@@ -88,9 +93,9 @@ export const loginController = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 userType,
-                ...(userType === "candidate" ? { resume: user.resume } : { industry: user.industry, website: user.website })
+                ...(userType === "candidate" ? { resume: user.resume } : { industry: user.industry, website: user.website }),
+                token
             },
-            token,
         });
     } catch (error) {
         console.error(error);
