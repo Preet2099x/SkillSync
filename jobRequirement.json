@@ -1,0 +1,12 @@
+{
+  "jobTitle": "Backend Developer",
+  "description": "Responsible for creating api, handling database and deployment for our web applications",
+  "skills": [
+    "Docker",
+    "Node",
+    "AWS",
+    "MongoDB",
+    "PostGres"
+  ],
+  "experience": "3"
+}
