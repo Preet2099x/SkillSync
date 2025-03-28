@@ -1,0 +1,48 @@
+Preet Singh
++91-9608962133|preetsingh3101a@gmail.com|linkedin.com/in/preet3101x|github.com/Preet2099x
+Education
+Arka Jain UniversityAug.  2022 – May 2026
+Bachelor of Technology in Computer Science EngineeringCGPA 8.56
+Experience
+Web Developer InternMay 2024 – June 2024
+Slash Mark IT StartupRemote
+•
+Developed a dynamic food delivery website using React for the frontend .
+•
+Implemented user authentication, order management, and payment integration functionalities.
+•
+Created and optimized SQL queries to efficiently manage and retrieve data from the database.
+Front-End InternMay 2024 – July 2024
+TechMantra GlobalRemote
+•
+Developed the front-end of a stock analysis app using React.
+•
+Fetched real-time stock data from APIs and displayed it dynamically on the app.
+•
+Implemented candlestick charts for visualizing stock market trends using ApexCharts library.
+Projects
+HAL-1000|React, Gemini API, Google Generative AIhal-1000.vercel.app
+∗Developed a coding assistant that uses React for the frontend and Gemini API with Google Generative AI for
+backend functionality.
+∗Implemented an interactive user interface with React and integrated APIs for managing and processing chatbot
+responses.
+∗Ensured smooth interaction between frontend and backend components by implementing robust error handling
+and state management.
+Qezee|React, Redux, Sass, MongoDB, Middlewaresqezee.onrender.com
+∗Developed the frontend for a comprehensive quiz app, including quiz creation, scheduling, and mock tests.
+∗Implemented sign-up and login functionality with email verification and OTP generation.
+∗Converted Figma designs to code using React and set up Redux for state management.
+∗Designed and integrated performance tracking with graphs and a live leaderboard.
+Technical Skills
+Languages:  JavaScript, HTML, CSS, SQL, C/C++, Java, Python
+Frameworks:  React, Redux, Node.js, SpringBoot,Bootstrap, Material-UI
+Developer Tools:  Git, GitHub, VSCode, Chrome DevTools, Postman, Docker
+Technologies:  REST APIs, Sass, Tailwind CSS, Webpack, JSON, FastAPI, MySQL, MongoDB
+Achievements
+–1st Positionin Technika 2k23 Hackathon among participants from 20+ colleges
+–2nd Positionin Code Busters:  Front-End Design from among 30+ participants
+–  Completed Web Development Bootcamp organized by Microsoft Learn Students Club
+–  Successfully completed Google Cloud Course on Fundamentals and Generative AI
+–  Achieved a3000 Scoreon Coding Ninjas (Link)
+–  Designed and developed a Sudoku game for a college tech event, which was actively utilized by over 100
+participants
