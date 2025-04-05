@@ -1,40 +1,75 @@
-const { exec } = require("child_process");
+const fs = require('fs').promises;
+const pdf = require('pdf-parse');
+const natural = require('natural');
+const path = require('path');
 
-// Helper function to run a command sequentially
-function runCommand(command) {
-    return new Promise((resolve, reject) => {
-        const process = exec(command, (error, stdout, stderr) => {
-            if (error) {
-                console.error(`❌ Error running ${command}:\n`, error);
-                reject(error);
-            } else {
-                console.log(`✅ Completed: ${command}`);
-                resolve(stdout);
-            }
-        });
+async function extractTextFromResume(filePath) {
+    try {
+        // Read the PDF file
+        const dataBuffer = await fs.readFile(filePath);
 
-        // Print real-time logs
-        process.stdout.on("data", (data) => console.log(data.toString()));
-        process.stderr.on("data", (data) => console.error(data.toString()));
-    });
+        // Extract text from the PDF
+        const data = await pdf(dataBuffer);
+
+        // Return the extracted text after trimming whitespace
+        return data.text.trim();
+    } catch (err) {
+        console.error("❌ Error reading or parsing the resume file:", err.message);
+        return null;
+    }
 }
 
-// Run scripts sequentially
-(async () => {
-    try {
-        console.log("🚀 Server started... Running files sequentially.");
+function processResumeText(text) {
+    if (!text) return "No text to process.";
 
-        await runCommand("node TextExtractor.js");  // Run text extraction
-        console.log("⏳ Extracting text from resume...");
+    // Tokenize the text into individual words
+    const tokenizer = new natural.WordTokenizer();
+    let tokens = tokenizer.tokenize(text);
 
-        await runCommand("node JobRequirment.js");  // Run job requirements
-        console.log("📄 Job requirements processed.");
+    // Remove common English stopwords
+    const stopwords = new Set(natural.stopwords);
+    tokens = tokens.filter((word) => !stopwords.has(word.toLowerCase()));
 
-        await runCommand("python Analyzer.py");  // Run the analyzer
-        console.log("🔍 Running AI analysis...");
+    // Apply stemming (reducing words to their root form)
+    const stemmer = natural.PorterStemmer;
+    tokens = tokens.map((word) => stemmer.stem(word));
 
-        console.log("✅ All tasks completed!");
-    } catch (err) {
-        console.error("❌ Server encountered an error:", err);
+    // Join the processed words into a cleaned-up text string
+    return tokens.join(" ");
+}
+
+async function main() {
+    // Set the default resume file path to 'resume1.pdf' in the same folder
+    const resumeFilePath = process.argv[2] || path.join(__dirname, "resume1.pdf");
+
+    // Extract text from the resume
+    const resumeText = await extractTextFromResume(resumeFilePath);
+
+    if (resumeText) {
+        console.log("\n📝 Extracted Text from Resume:\n------------------------------------");
+        console.log(resumeText.slice(0, 500) + (resumeText.length > 500 ? "...\n[Truncated]" : ""));
+
+        // Process the extracted text
+        const processedText = processResumeText(resumeText);
+
+        // Define output file paths
+        const outputRawPath = path.join(__dirname, "resume_raw_text.txt");
+        const outputProcessedPath = path.join(__dirname, "resume_processed_text.txt");
+
+        try {
+            // Save raw and processed text to files
+            await fs.writeFile(outputRawPath, resumeText, "utf-8");
+            await fs.writeFile(outputProcessedPath, processedText, "utf-8");
+
+            console.log(`✅ Raw resume text saved to: ${outputRawPath}`);
+            console.log(`✅ Processed resume text saved to: ${outputProcessedPath}`);
+        } catch (err) {
+            console.error("❌ Error saving processed text:", err.message);
+        }
+    } else {
+        console.log("⚠️ No text extracted from the resume file.");
     }
-})();
+}
+
+// Run the script
+main();

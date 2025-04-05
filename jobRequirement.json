@@ -1,12 +1,13 @@
 {
-  "jobTitle": "Backend Developer",
-  "description": "Responsible for creating api, handling database and deployment for our web applications",
+  "jobTitle": "Frontend Developer",
+  "description": "Should know basic react and have experience with handling api and using libraries",
   "skills": [
-    "Docker",
-    "Node",
-    "AWS",
-    "MongoDB",
-    "PostGres"
+    "HTML",
+    "CSS",
+    "REACT",
+    "JAVASCRIPT",
+    "API",
+    "TAILWIND"
   ],
-  "experience": "3"
+  "experience": "1"
 }

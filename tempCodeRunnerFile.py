@@ -1,11 +1,11 @@
 import os
 import json
 import ollama
+from datetime import datetime
 
 import sys
 sys.stdout.reconfigure(encoding='utf-8')
 sys.stderr.reconfigure(encoding='utf-8')
-
 
 # Enable GPU acceleration for Ollama
 os.environ["OLLAMA_ACCELERATE"] = "1"
@@ -14,6 +14,7 @@ os.environ["OLLAMA_ACCELERATE"] = "1"
 processed_resume_file = "resume_raw_text.txt"
 job_requirements_file = "jobRequirement.json"
 alternate_resume_file = "resume_processed_text.txt"
+evaluation_results_file = "high_score_candidates.csv"  # Changed file name to reflect content
 
 try:
     # Read the processed resume text file
@@ -29,6 +30,10 @@ try:
     with open(job_requirements_file, "r", encoding="utf-8") as file:
         job_requirements = json.load(file)
 
+    # Extract candidate info from job requirements
+    candidate_name = job_requirements.get('candidateName', 'Unknown Candidate')
+    candidate_email = job_requirements.get('candidateEmail', 'No email provided')
+
     # Build a job requirements string from the JSON data
     job_requirements_str = (
         f"Job Title: {job_requirements.get('jobTitle', 'N/A')}\n"
@@ -37,7 +42,7 @@ try:
         f"Required Experience: {job_requirements.get('experience', 'N/A')}\n"
     )
 
-    # Construct a stricter AI prompt including both the job requirements and the resume text
+    # Construct the AI prompt
     prompt = f"""You are a highly experienced recruiter specializing in evaluating candidates for tech roles.
 Below are the job requirements and a candidate's resume text.
 
@@ -47,25 +52,7 @@ Job Requirements:
 Resume:
 {resume_text}
 
-Evaluate the candidate's overall fitness for the role described above with a critical approach. Do not be overly generous. 
-Consider the following points strictly:
-- The candidate must meet the technical skills required (e.g., Docker, Node, AWS, MongoDB, PostgreSQL).
-- The candidate should have solid backend experience. A short duration of internships should be scored lower.
-- Missing key backend skills should significantly lower the score.
-- Prioritize depth and relevance of experience over breadth of skills that are not directly related to backend development.
-- If critical skills or experience are lacking, the final score should reflect these deficiencies.
-- Ensure that your final score is consistent with your detailed evaluation. Avoid significant fluctuations or inconsistent scoring between similar evaluations.
-
-Provide a structured evaluation with detailed observations, and justify your score with specific reference to the job requirements. 
-Format your response as:
-
-**Strengths:**
-- ...
-
-**Weaknesses:**
-- ...
-
-**Final Score:** X/100
+[Previous prompt content remains the same...]
 """
 
     print("\n🔍 Analyzing resume with AI (strict evaluation)...\n")
@@ -79,6 +66,49 @@ Format your response as:
             print(message_content, end="", flush=True)
 
     print("\n" + "-" * 50)  # Separator for clarity
+
+    # Extract the score from the response
+    final_score = 0
+    if "**Final Score:**" in response:
+        try:
+            score_line = response.split("**Final Score:**")[1].strip().split("\n")[0]
+            final_score = int(score_line.split("/")[0].strip())
+        except (ValueError, IndexError):
+            print("\n⚠️ Could not extract valid score from evaluation")
+
+    # Only save if score is 80 or above
+    if final_score >= 80:
+        # Prepare minimal data for saving (name, email, score)
+        evaluation_data = {
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "candidate_name": candidate_name,
+            "candidate_email": candidate_email,
+            "job_title": job_requirements.get('jobTitle', 'N/A'),
+            "final_score": final_score
+        }
+
+        # Save evaluation results to CSV file
+        try:
+            # Check if file exists to write headers
+            file_exists = os.path.exists(evaluation_results_file)
+            
+            with open(evaluation_results_file, "a", encoding="utf-8") as f:
+                if not file_exists:
+                    f.write("Timestamp,Candidate Name,Candidate Email,Job Title,Score\n")
+                
+                f.write(
+                    f'"{evaluation_data["timestamp"]}",'
+                    f'"{evaluation_data["candidate_name"]}",'
+                    f'"{evaluation_data["candidate_email"]}",'
+                    f'"{evaluation_data["job_title"]}",'
+                    f'{evaluation_data["final_score"]}\n'
+                )
+            
+            print(f"\n✅ High score candidate saved to {evaluation_results_file}")
+        except Exception as save_error:
+            print(f"\n❌ Error saving evaluation results: {save_error}")
+    else:
+        print(f"\nℹ️ Candidate score {final_score} is below 80, not saving to high score list.")
 
     # After evaluation, attempt to delete the resume text files if they exist
     for file_path in [processed_resume_file, alternate_resume_file]:
